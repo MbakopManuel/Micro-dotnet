@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Customer.Microservice</name>
+    </assembly>
+    <members>
+        <member name="M:Customer.Microservice.Operations.WeatherForecastController.Get">
+            <summary>
+            Return a list of all movies
+            </summary>
+            <remarks>
+            Use this operation to return a list of all movies
+            </remarks>
+            <response code="200">Returns a list of all movies</response>
+            <response code="401">Unauthorized</response>
+            <response code="500">Internal Server Error</response>
+        </member>
+    </members>
+</doc>
