@@ -20,6 +20,13 @@ rename_project(){
     dotnet run -p ./RenameUtility/RenameUtility -- $name $SAMPLENAME $lowerName
 }
 
+#suppression d'un projet
+delete_project(){
+    name=$1
+    rm -r "${name}.Microservice"
+    remove_in_solution $name
+}
+
 
 #creation des differents dossiers du service
 create_folders(){
@@ -38,8 +45,6 @@ create_folders(){
     echo "$REDIR/${name}Repository created"
 
 }
-
-
 
 delete_folders(){
     name=$1
@@ -98,26 +103,43 @@ main_project(){
     create_project $1
     #renommage du projet
     rename_project $1
+    #ajouter un projet à la solution
+    add_in_solution $1
+    #build projet
+    build_project
 }
-
 
 build_project(){
     dotnet build Microservice.WebApi.sln
 }
 
+add_in_solution(){
+    dotnet sln add "${1}.Microservice/${1}.Microservice.csproj"
+}
 
-if [ $# -gt 2 ]
+remove_in_solution(){
+    dotnet sln remove "${1}.Microservice/${1}.Microservice.csproj"
+}
+
+
+
+#run du projet
+if [ $# -ge 2 ]
 then
     case $1 in
 	add)
 	    main $2
 
-        build_project()
+        build_project
 	    ;;
 	delete)
 	    delete_folders $2
-
-        build_project()
+	    ;;
+	add-project)
+	    main_project $2
+	    ;;
+	delete-project)
+	    delete_project $2
 	    ;;
     rename)
         echo "$2 $3"
@@ -126,7 +148,7 @@ then
         echo "${2,,} ${3,,}"
 	    dotnet run -p ./RenameUtility/RenameUtility -- "./" ${2,,} ${3,,}
      
-        build_project()
+        build_project
 	    ;;
     rename-in)
         echo "$2 $3 $4"
@@ -135,8 +157,11 @@ then
         echo "$2 ${3,,} ${4,,}"
 	    dotnet run -p ./RenameUtility/RenameUtility -- $2 ${3,,} ${4,,}
      
-        build_project()
+        build_project
 	    ;;
+    echo)
+        echo "${2}.Microservice/${2}.Microservice.csproj"
+        ;;
 	*)
 	    echo "run <COMMAND> : \n 
                 add [PROJECT_Name] \n
