@@ -26,7 +26,7 @@
       "UpstreamHttpMethod": [ "GET", "DELETE" ]
     },
     {
-      "DownstreamPathTemplate": "/api/customer",
+      "DownstreamPathTemplate": "/api/sample",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -34,11 +34,11 @@
           "Port": 44373
         }
       ],
-      "UpstreamPathTemplate": "/gateway/customer",
+      "UpstreamPathTemplate": "/gateway/sample",
       "UpstreamHttpMethod": [ "POST", "PUT", "GET" ]
     },
     {
-      "DownstreamPathTemplate": "/api/customer/{id}",
+      "DownstreamPathTemplate": "/api/sample/{id}",
       "DownstreamScheme": "https",
       "DownstreamHostAndPorts": [
         {
@@ -46,7 +46,7 @@
           "Port": 44373
         }
       ],
-      "UpstreamPathTemplate": "/gateway/customer/{id}",
+      "UpstreamPathTemplate": "/gateway/sample/{id}",
       "UpstreamHttpMethod": [ "GET", "DELETE" ]
     }
   ]

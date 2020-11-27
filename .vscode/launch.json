@@ -9,9 +9,9 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/Gateway.WebApi/bin/Debug/netcoreapp3.1/Gateway.WebApi.dll",
+            "program": "${workspaceFolder}/Sample.Microservice/bin/Debug/netcoreapp3.1/Sample.Microservice.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/Gateway.WebApi",
+            "cwd": "${workspaceFolder}/Sample.Microservice",
             "stopAtEntry": false,
             "serverReadyAction": {
                 "action": "openExternally",
