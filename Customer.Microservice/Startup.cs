@@ -14,13 +14,18 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
-using Customer.Microservice.Repositories.Weather;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Customer.Microservice.Services.Weather;
 using System.Reflection;
 using AutoMapper;
+using FluentValidation.AspNetCore;
+
 using Customer.Microservice.Operations.Weather.MapperProfiles;
 using Customer.Microservice.Services.Weather.MapperProfiles;
+
+using Customer.Microservice.Operations.Customer.MapperProfiles;
+using Customer.Microservice.Services.Customer.MapperProfiles;
+
+using Customer.Microservice.Services;
 namespace Customer.Microservice
 {
     public class Startup
@@ -35,14 +40,16 @@ namespace Customer.Microservice
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-           
+            CorsConfiguration(services);
             services.AddDbContextPool<ApplicationDbContext>(
                 options => options.UseMySql(Configuration.GetConnectionString("DefaultConnection")
             ));
 
             services.AddScoped<IApplicationDbContext>(provider => provider.GetService<ApplicationDbContext>());
-            services.TryAddScoped<IWeatherRepository, WeatherRepository>();
-            services.TryAddTransient<IWeatherService, WeatherService>();
+            
+            //services et repository
+            addServive(services);
+            
             services.AddAutoMapper(GetAssemblyNamesToScanForMapperProfiles());
             
             // services.AddWeatherService();
@@ -58,12 +65,18 @@ namespace Customer.Microservice
             });
             #endregion
             services.AddControllers();
+            services.AddMvc().AddFluentValidation();
         }
 
+            //ajouter les profiles de mapper
          private static IEnumerable<Profile> GetAssemblyNamesToScanForMapperProfiles() =>
             new Profile[] { 
                 new WeatherProfile(),
-                new WeatherResponseProfile()
+                new WeatherResponseProfile(),
+
+                new CustomerProfile(),
+                new CreateCustomerRequestProfile(),
+                new UpdateCustomerRequestProfile()
              };
 
 
@@ -81,6 +94,7 @@ namespace Customer.Microservice
 
             app.UseAuthorization();
             app.UseSwagger();
+            app.UseCors();
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/swagger/v1/swagger.json", "Customer.Microservice");
@@ -89,6 +103,23 @@ namespace Customer.Microservice
             {
                 endpoints.MapControllers();
             });
+        }
+
+        private static void CorsConfiguration(IServiceCollection services)
+        {
+            services.AddCors(options =>
+            {
+                options.AddPolicy(
+                    "AllowSpecificOrigin",
+                    builder => builder.AllowAnyOrigin() // TODO: Replace with FE Service Host as appropriate to constrain clients
+                        .AllowAnyHeader()
+                        .WithMethods("PUT", "POST", "OPTIONS", "GET", "DELETE"));
+            });
+        }
+
+        private static void  addServive(IServiceCollection services){
+            var serv = new Service(services);
+            serv.addService();
         }
     }
 }

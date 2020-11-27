@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Customer.Microservice.Repositories.Customer.DtoModels;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,8 @@ namespace Customer.Microservice.Data
             : base(options)
         {
         }
-        public DbSet<Entities.Customer> Customers{ get; set; }
+
+        DbSet<CustomerDtoModel> IApplicationDbContext.Customers { get; set; }
 
         public async Task<int> SaveChanges()
         {
