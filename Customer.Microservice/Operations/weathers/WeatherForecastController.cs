@@ -11,7 +11,7 @@ namespace Customer.Microservice.Operations
 {
     [ApiController]
     [Route("[controller]")]
-    public class WeatherForecastController : ControllerBase
+    public class WeatherForecastController : BaseController
     {
     
         private readonly IMapper _mapper;
@@ -38,10 +38,11 @@ namespace Customer.Microservice.Operations
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]    
         [HttpGet]
-        public IEnumerable<WeatherViewModel> Get()
+        public async Task<ActionResult<List<WeatherViewModel>>> Get()
         {
            var weather = _weatherService.Get();
-           return _mapper.Map<List<WeatherViewModel>>(weather);
+           var response = _mapper.Map<List<WeatherViewModel>>(weather);
+           return HandleSuccessResponse(response);
         }
     }
 }
