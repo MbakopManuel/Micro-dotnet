@@ -51,22 +51,24 @@ create_folders(){
 }
 
 delete_folders(){
-    name=$1
+    projet=$1
+    name=$2
+
     echo "folders deletion ..."
     #creation de l'opération
-    rm -r "$OPDIR/${name}Operation"
-    echo "$OPDIR/${name}Operation deleted"
+    rm -r "$projet.Microservice/$OPDIR/${name}"
+    echo "$projet.Microservice/$OPDIR/${name} deleted"
 
    
     
     #create service
-    rm -r "$SEDIR/${name}Service"
-    echo "$SEDIR/${name}Service deleted"
+    rm -r "$projet.Microservice/$SEDIR/${name}"
+    echo "$projet.Microservice/$SEDIR/${name} deleted"
 
     
     #create repository
-    rm -r "$REDIR/${name}Repository"
-    echo "$REDIR/${name}Repository deleted"
+    rm -r "$projet.Microservice/$REDIR/${name}"
+    echo "$projet.Microservice/$REDIR/${name} deleted"
 
 
     echo "folders deleted"
@@ -130,13 +132,12 @@ remove_in_solution(){
 if [ $# -ge 2 ]
 then
     case $1 in
-	add)
+	add-service)
+        # echo "$2.Microservice/$OPDIR $3"
 	    main $2 $3
-
-        build_project
 	    ;;
-	delete)
-	    delete_folders $2
+	delete-service)
+	    delete_folders $2 $3
 	    ;;
 	add-project)
 	    main_project $2
