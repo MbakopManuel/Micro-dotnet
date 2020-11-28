@@ -131,7 +131,7 @@ if [ $# -ge 2 ]
 then
     case $1 in
 	add)
-	    main $2
+	    main $2 $3
 
         build_project
 	    ;;
@@ -167,7 +167,7 @@ then
         ;;
 	*)
 	    echo "run <COMMAND> : \n 
-                add [PROJECT_Name] \n
+                add [PROJECT_NAME] [SERVICE_NAME] \n
                 delete [FOLDER_NAME] \n
                 rename [OLD_NAME] [NEW_NAME] \n
                 rename-in [PROJECT_NAME] [OLD_NAME] [NEW_NAME]"
