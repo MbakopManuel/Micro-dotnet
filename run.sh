@@ -3,6 +3,9 @@
 SAMPLEDIR="Sample.Microservice"
 SAMPLENAME="Sample"
 SAMPLENAMEMIN="Sample"
+OPDIR="Operations"
+SEDIR="Services"
+REDIR="Repositories"
 
 #create project
 create_project(){
@@ -30,19 +33,20 @@ delete_project(){
 
 #creation des differents dossiers du service
 create_folders(){
-    name=$1
+    name=$2
+    projet=$1
     echo "folders creation ..."
     #creation de l'opération
-    cp -r "$OPDIR/Samples" "$OPDIR/${name}Operation"
-    echo "$OPDIR/${name}Operation created"
+    cp -r "$projet.Microservice/$OPDIR/Samples" "$projet.Microservice/$OPDIR/${name}"
+    echo "$projet.Microservice/$OPDIR/${name} created"
     
     #create service
-    cp -r "$SEDIR/Samples" "$SEDIR/${name}Service"
-    echo "$SEDIR/${name}Service created"
+    cp -r "$projet.Microservice/$SEDIR/Samples" "$projet.Microservice/$SEDIR/${name}"
+    echo "$projet.Microservice/$SEDIR/${name} created"
     
     #create repository
-    cp -r "$REDIR/Samples" "$REDIR/${name}Repository"
-    echo "$REDIR/${name}Repository created"
+    cp -r "$projet.Microservice/$REDIR/Samples" "$projet.Microservice/$REDIR/${name}"
+    echo "$projet.Microservice/$REDIR/${name}Repository created"
 
 }
 
@@ -70,37 +74,36 @@ delete_folders(){
 
 #renommage des differents dossiers créés
 rename_folders(){
-
-    name=$1
+    projet=$1
+    name=$2
     lowerName=${name,,}
     lowerName=${lowerName%?}
     echo "renaming..."
-
     #rename des opérations
-    dotnet run -p ./RenameUtility/RenameUtility -- "$OPDIR/${name}Operation" "Movie" ${name%?}
-    dotnet run -p ./RenameUtility/RenameUtility -- "$OPDIR/${name}Operation" "movie" $lowerName
+    dotnet run -p ./RenameUtility/RenameUtility -- "$projet.Microservice/$OPDIR/${name}" "Sample" ${name%?}
+    dotnet run -p ./RenameUtility/RenameUtility -- "$projet.Microservice/$OPDIR/${name}" "Sample" $lowerName
 
     #rename des services
-    dotnet run -p ./RenameUtility/RenameUtility -- "$SEDIR/${name}Service" "Movie" ${name%?}
-    dotnet run -p ./RenameUtility/RenameUtility -- "$SEDIR/${name}Service" "movie" $lowerName
+    dotnet run -p ./RenameUtility/RenameUtility -- "$projet.Microservice/$SEDIR/${name}" "Sample" ${name%?}
+    dotnet run -p ./RenameUtility/RenameUtility -- "$projet.Microservice/$SEDIR/${name}" "sample" $lowerName
 
     #rename des repositories
-    dotnet run -p ./RenameUtility/RenameUtility -- "$REDIR/${name}Repository" "Movie" ${name%?}
-    dotnet run -p ./RenameUtility/RenameUtility -- "$REDIR/${name}Repository" "movie" $lowerName
+    dotnet run -p ./RenameUtility/RenameUtility -- "$projet.Microservice/$REDIR/${name}" "Sample" ${name%?}
+    dotnet run -p ./RenameUtility/RenameUtility -- "$projet.Microservice/$REDIR/${name}" "sample" $lowerName
 	echo "end."
 }
 
 
 main(){
     #creation du dossier de projet
-    create_folders $1
+    create_folders $1 $2
     #renommage des différents elements
-    rename_folders $1
+    rename_folders $1 $2
 }
 
 main_project(){
     #create project
-    create_project $1
+    create_project $1 
     #renommage du projet
     rename_project $1
     #ajouter un projet à la solution

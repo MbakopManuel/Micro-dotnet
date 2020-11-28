@@ -19,11 +19,7 @@ using System.Reflection;
 using AutoMapper;
 using FluentValidation.AspNetCore;
 
-using Sample.Microservice.Operations.Weather.MapperProfiles;
-using Sample.Microservice.Services.Weather.MapperProfiles;
 
-using Sample.Microservice.Operations.Sample.MapperProfiles;
-using Sample.Microservice.Services.Sample.MapperProfiles;
 
 using Sample.Microservice.Services;
 namespace Sample.Microservice
@@ -52,8 +48,6 @@ namespace Sample.Microservice
             
             services.AddAutoMapper(GetAssemblyNamesToScanForMapperProfiles());
             
-            // services.AddWeatherService();
-            // services.AddWeatherRepository();
             #region Swagger
             services.AddSwaggerGen(c =>
             {
@@ -69,15 +63,12 @@ namespace Sample.Microservice
         }
 
             //ajouter les profiles de mapper
-         private static IEnumerable<Profile> GetAssemblyNamesToScanForMapperProfiles() =>
-            new Profile[] { 
-                new WeatherProfile(),
-                new WeatherResponseProfile(),
-
-                new SampleProfile(),
-                new CreateSampleRequestProfile(),
-                new UpdateSampleRequestProfile()
-             };
+         private static IEnumerable<Profile> GetAssemblyNamesToScanForMapperProfiles(){
+             var serv = new Service();
+             var profiles = serv.addProfile();
+             return profiles;
+         }
+            
 
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

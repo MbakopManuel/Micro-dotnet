@@ -1,4 +1,10 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using AutoMapper;
+
 using Sample.Microservice.Repositories.Weather;
 using Sample.Microservice.Services.Weather;
 using Sample.Microservice.Operations.Weather.MapperProfiles;
@@ -8,7 +14,7 @@ using Sample.Microservice.Repositories.Sample;
 using Sample.Microservice.Services.Sample;
 using Sample.Microservice.Operations.Sample.MapperProfiles;
 using Sample.Microservice.Services.Sample.MapperProfiles;
-using Microsoft.Extensions.DependencyInjection.Extensions;
+
 
 namespace Sample.Microservice.Services {
 
@@ -21,6 +27,8 @@ namespace Sample.Microservice.Services {
            
         }
 
+        public Service(){}
+
         public void addService(){
             _services.TryAddScoped<IWeatherRepository, WeatherRepository>();
             _services.TryAddTransient<IWeatherService, WeatherService>();
@@ -28,6 +36,19 @@ namespace Sample.Microservice.Services {
             _services.TryAddScoped<ISampleRepository, SampleRepository>();
             _services.TryAddTransient<ISampleService, SampleService>();
           
+        }
+
+        public IEnumerable<Profile> addProfile(){
+            var profiles = new Profile[] { 
+                new WeatherProfile(),
+                new WeatherResponseProfile(),
+
+                new SampleProfile(),
+                new CreateSampleRequestProfile(),
+                new UpdateSampleRequestProfile()
+             };
+
+             return profiles;
         }
         
 

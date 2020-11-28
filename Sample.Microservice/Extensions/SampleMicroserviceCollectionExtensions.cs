@@ -11,7 +11,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
-    public static class IntekorServerServiceCollectionExtensions
+    public static class SampleServiceCollectionExtensions
     {
             public static IServiceCollection AddAutoMapper(this IServiceCollection services, IEnumerable<Profile> assemblyNamesToScan)
         {
