@@ -7,7 +7,7 @@ namespace Sample.Microservice.Entities
 {
     public class ApiReturnEntity
     {
-        public string Status { get; set; }
+        public string status { get; set; }
         public Object data {get; set;}
     }
 }

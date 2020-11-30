@@ -12,12 +12,16 @@ namespace Sample.Microservice.Operations
     {
         protected ActionResult HandleSuccessResponse(object data, HttpStatusCode status = HttpStatusCode.OK)
         {
-            return StatusCode((int)status, data);
+            var response = new ApiResponse();
+            response.Data = data;
+            return StatusCode((int)status, response);
         }
 
         protected ActionResult HandleCreatedResponse(object data, HttpStatusCode status = HttpStatusCode.Created)
         {
-            return StatusCode((int)status, data);
+            var response = new ApiResponse();
+            response.Data = data;
+            return StatusCode((int)status, response);
         }
 
         protected ActionResult HandleErrorResponse(HttpStatusCode httpStatus, string message)
