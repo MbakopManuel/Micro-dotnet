@@ -32,6 +32,10 @@ namespace Sample.Microservice.Operations
         }
 
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]    
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]   
         [HttpPost]
         public async Task<ActionResult<SampleViewModel>> Create([FromBody] CreateSampleViewModel viewModel)
         {
@@ -56,6 +60,10 @@ namespace Sample.Microservice.Operations
         }
 
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]    
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]   
         [HttpGet]
         public async Task<ActionResult<List<SampleViewModel>>> GetAll()
         {
@@ -67,6 +75,10 @@ namespace Sample.Microservice.Operations
         }
 
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]    
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]   
         [HttpGet("{id}")]
         public async Task<ActionResult<SampleViewModel>> GetById(int id)
         {
@@ -78,6 +90,10 @@ namespace Sample.Microservice.Operations
         }
 
 
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]    
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]   
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -87,6 +103,11 @@ namespace Sample.Microservice.Operations
             return HandleDeletedResponse();
         }
 
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]    
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]   
         [HttpPut("{id}")]
         public async Task<ActionResult<SampleViewModel>> Update(int id, [FromBody] SampleViewModel viewModel)
         {

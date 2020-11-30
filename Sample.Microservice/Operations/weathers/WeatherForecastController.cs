@@ -37,6 +37,7 @@ namespace Sample.Microservice.Operations
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]    
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]    
         [HttpGet]
         public async Task<ActionResult<List<WeatherViewModel>>> Get()
         {
