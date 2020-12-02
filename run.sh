@@ -19,8 +19,8 @@ create_project(){
 rename_project(){
     name=$1
     lowerName=${name,,}
-    dotnet run -p ./RenameUtility/RenameUtility -- $name $SAMPLENAME $name
-    dotnet run -p ./RenameUtility/RenameUtility -- $name $SAMPLENAME $lowerName
+    dotnet run -p ./RenameUtility/RenameUtility -- "$name.Microservice" $SAMPLENAME $name
+    dotnet run -p ./RenameUtility/RenameUtility -- "$name.Microservice" ${SAMPLENAME,,} $lowerName
 }
 
 #suppression d'un projet
@@ -28,6 +28,7 @@ delete_project(){
     name=$1
     rm -r "${name}.Microservice"
     remove_in_solution $name
+    build_project
 }
 
 
@@ -37,15 +38,15 @@ create_folders(){
     projet=$1
     echo "folders creation ..."
     #creation de l'opération
-    cp -r "$projet.Microservice/$OPDIR/Samples" "$projet.Microservice/$OPDIR/${name}"
+    cp -r "$SAMPLEDIR/$OPDIR/samples" "$projet.Microservice/$OPDIR/${name}"
     echo "$projet.Microservice/$OPDIR/${name} created"
     
     #create service
-    cp -r "$projet.Microservice/$SEDIR/Samples" "$projet.Microservice/$SEDIR/${name}"
+    cp -r "$SAMPLEDIR/$SEDIR/samples" "$projet.Microservice/$SEDIR/${name}"
     echo "$projet.Microservice/$SEDIR/${name} created"
     
     #create repository
-    cp -r "$projet.Microservice/$REDIR/Samples" "$projet.Microservice/$REDIR/${name}"
+    cp -r "$SAMPLEDIR/$REDIR/samples" "$projet.Microservice/$REDIR/${name}"
     echo "$projet.Microservice/$REDIR/${name}Repository created"
 
 }
@@ -83,7 +84,7 @@ rename_folders(){
     echo "renaming..."
     #rename des opérations
     dotnet run -p ./RenameUtility/RenameUtility -- "$projet.Microservice/$OPDIR/${name}" "Sample" ${name%?}
-    dotnet run -p ./RenameUtility/RenameUtility -- "$projet.Microservice/$OPDIR/${name}" "Sample" $lowerName
+    dotnet run -p ./RenameUtility/RenameUtility -- "$projet.Microservice/$OPDIR/${name}" "sample" $lowerName
 
     #rename des services
     dotnet run -p ./RenameUtility/RenameUtility -- "$projet.Microservice/$SEDIR/${name}" "Sample" ${name%?}
@@ -92,6 +93,9 @@ rename_folders(){
     #rename des repositories
     dotnet run -p ./RenameUtility/RenameUtility -- "$projet.Microservice/$REDIR/${name}" "Sample" ${name%?}
     dotnet run -p ./RenameUtility/RenameUtility -- "$projet.Microservice/$REDIR/${name}" "sample" $lowerName
+
+
+    dotnet run -p ./RenameUtility/RenameUtility -- "$projet.Microservice/" "${name%?}.Microservice" "$projet.Microservice"
 	echo "end."
 }
 
@@ -119,11 +123,11 @@ build_project(){
 }
 
 add_in_solution(){
-    dotnet sln add "${1}.Microservice/${1}.Microservice.csproj"
+    dotnet sln "Microservice.WebApi.sln" add "${1}.Microservice/${1}.Microservice.csproj"
 }
 
 remove_in_solution(){
-    dotnet sln remove "${1}.Microservice/${1}.Microservice.csproj"
+    dotnet sln "Microservice.WebApi.sln" remove "${1}.Microservice/${1}.Microservice.csproj"
 }
 
 
@@ -168,14 +172,27 @@ then
         ;;
 	*)
 	    echo "run <COMMAND> : \n 
+                add-project [PROJECT_NAME] \n
                 add [PROJECT_NAME] [SERVICE_NAME] \n
                 delete [FOLDER_NAME] \n
+                delete-service [PROJECT_NAME] [SERVICE_NAME] \n
+                delete-project [PROJECT_NAME] \n
                 rename [OLD_NAME] [NEW_NAME] \n
                 rename-in [PROJECT_NAME] [OLD_NAME] [NEW_NAME]"
 	    ;;
    esac
 		   
 else
-    echo "il faut deux parametre obligatoire: COMMAND(add, delete, rename-in)"
+    echo "
+            run <COMMAND> :  
+                add-project [PROJECT_NAME] 
+                add [PROJECT_NAME] [SERVICE_NAME] 
+                delete [FOLDER_NAME] 
+                delete-service [PROJECT_NAME] [SERVICE_NAME] 
+                delete-project [PROJECT_NAME] 
+                rename [OLD_NAME] [NEW_NAME] 
+                rename-in [PROJECT_NAME] [OLD_NAME] [NEW_NAME]
+                
+        "
 fi
 

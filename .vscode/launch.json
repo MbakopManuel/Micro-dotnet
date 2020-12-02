@@ -9,9 +9,9 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/Sample.Microservice/bin/Debug/netcoreapp3.1/Sample.Microservice.dll",
+            "program": "${workspaceFolder}/User.Microservice/bin/Debug/netcoreapp3.1/User.Microservice.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/Sample.Microservice",
+            "cwd": "${workspaceFolder}/User.Microservice",
             "stopAtEntry": false,
             "serverReadyAction": {
                 "action": "openExternally",
