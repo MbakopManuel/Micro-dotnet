@@ -15,6 +15,7 @@ namespace User.Microservice.Repositories.User.DtoModels {
         public int Created_at { get; set;}
         public int Role_id { get; set;}
         public RoleDtoModel Role {get; set;}
+        
 
     }
 
