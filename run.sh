@@ -173,7 +173,7 @@ then
 	*)
 	    echo "run <COMMAND> : \n 
                 add-project [PROJECT_NAME] \n
-                add [PROJECT_NAME] [SERVICE_NAME] \n
+                add-service [PROJECT_NAME] [SERVICE_NAME] \n
                 delete [FOLDER_NAME] \n
                 delete-service [PROJECT_NAME] [SERVICE_NAME] \n
                 delete-project [PROJECT_NAME] \n
@@ -186,7 +186,7 @@ else
     echo "
             run <COMMAND> :  
                 add-project [PROJECT_NAME] 
-                add [PROJECT_NAME] [SERVICE_NAME] 
+                add-service [PROJECT_NAME] [SERVICE_NAME] 
                 delete [FOLDER_NAME] 
                 delete-service [PROJECT_NAME] [SERVICE_NAME] 
                 delete-project [PROJECT_NAME] 

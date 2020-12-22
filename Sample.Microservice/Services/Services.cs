@@ -44,6 +44,7 @@ namespace Sample.Microservice.Services {
                 new WeatherResponseProfile(),
 
                 new SampleProfile(),
+                new SampleResponseProfile(),
                 new CreateSampleRequestProfile(),
                 new UpdateSampleRequestProfile()
              };
