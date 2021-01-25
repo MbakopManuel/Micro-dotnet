@@ -13,11 +13,14 @@ using User.Microservice.Operations.Role.ViewModels;
 using User.Microservice.Operations.Role.Validator;
 using AutoMapper;
 using System.Diagnostics.Contracts;
+using Microsoft.AspNetCore.Authorization;
+using JWTAuthentication.Models;
 
 namespace User.Microservice.Operations
 {
     [Route("[controller]")]
     [ApiController]
+    [Authorize(Policy = Policies.Admin)]
     public class RoleController : BaseController
     {
         private readonly IRoleService _roleService;
@@ -83,7 +86,9 @@ namespace User.Microservice.Operations
         public async Task<ActionResult<RoleViewModel>> GetById(int id)
         {
              var role = await _roleService.GetRoleAsync(id);
-
+            if(role == null){
+                return HandleErrorResponse(HttpStatusCode.NotFound, "role doesn't exist");
+            }
             var response = _mapper.Map<RoleViewModel>(role);
 
             return HandleSuccessResponse(response);

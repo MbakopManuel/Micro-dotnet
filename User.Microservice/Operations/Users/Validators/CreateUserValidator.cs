@@ -16,6 +16,15 @@ namespace User.Microservice.Operations.User.Validator{
             RuleFor(user => user.Password)
                     .NotEmpty()
                     .NotNull();
+
+
+            RuleFor(user => user.Password)
+                    .NotEmpty()
+                    .NotNull();
+                    
+            RuleFor(user => user.RoleId)
+                    .NotEmpty()
+                    .NotNull();
             
         }
 

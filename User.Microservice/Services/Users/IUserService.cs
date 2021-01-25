@@ -12,12 +12,18 @@ namespace User.Microservice.Services.User {
 
         Task<UserDomainModel> GetUserAsync(int id);
 
+        Task<UserDomainModel> LoginUserAsync(UserDomainModel User);
         Task<UserDomainModel> CreateUserAsync(UserDomainModel User);
 
         Task<UserDomainModel> UpdateUserAsync(UserDomainModel User);
-
+        Task<UserDomainModel> UpdatePasswordAsync(int id, string oldpassword, string newpassword);
         Task<int> DeleteUserAsync(int id);
 
+        String GenerateToken(UserDomainModel User);
+        
+        string GenerateRefreshToken();
+        Task<UserDomainModel> GetSingleByRefreshTokenAsync(string refresh);
+        Task<UserDomainModel> GetUserByPhoneAsync(string phone);
     }
 
 }

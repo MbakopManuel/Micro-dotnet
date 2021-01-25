@@ -16,9 +16,9 @@ namespace User.Microservice.Operations.User.Validator{
                     .NotEmpty()
                     .NotNull();
             
-                RuleFor(user => user.Phone)
-                    .NotEmpty()
-                    .NotNull();
+                // RuleFor(user => user.Phone)
+                //     .NotEmpty()
+                //     .NotNull();
             
                 RuleFor(user => user.Email)
                     .NotEmpty()
