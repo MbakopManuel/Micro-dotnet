@@ -53,10 +53,12 @@ namespace User.Microservice.Services {
                 new WeatherResponseProfile(),
 
                 new UserProfile(),
+                new UserResponseProfile(),
                 new CreateUserRequestProfile(),
                 new UpdateUserRequestProfile(),
 
                 new RoleProfile(),
+                new RoleResponseProfile(),
                 new CreateRoleRequestProfile(),
                 new UpdateRoleRequestProfile(),
              };
