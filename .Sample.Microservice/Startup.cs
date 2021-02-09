@@ -83,6 +83,7 @@ namespace Sample.Microservice
 
             app.UseRouting();
 
+            app.UseStaticFiles();
             app.UseAuthorization();
             app.UseSwagger();
             app.UseCors();
