@@ -1,0 +1,251 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using SampleAuth.Microservice.Data;
+using System.Net;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SampleAuth.Microservice.Services.User;
+using SampleAuth.Microservice.Services.User.DomainModels;
+using SampleAuth.Microservice.Operations.User.ViewModels;
+using SampleAuth.Microservice.Operations.User.Validator;
+using AutoMapper;
+using System.Diagnostics.Contracts;
+using SampleAuth.Microservice.Services.Role;
+using Microsoft.AspNetCore.Authorization;
+using JWTAuthentication.Models;
+using SampleAuth.Microservice.Operations.ApiResponses;
+using System.Net.Http;
+using SampleAuth.Microservice.Entities;
+using Newtonsoft.Json;
+
+namespace SampleAuth.Microservice.Operations
+{
+    [Route("[controller]")]
+    [ApiController]
+    [Authorize(Policy = Policies.Admin)]
+    public class UserController : BaseController
+    {
+        private readonly IUserService _userService;
+        private readonly IRoleService _roleService;
+        private readonly IMapper _mapper;
+        public UserController(
+            IMapper mapper,
+            IUserService userService,
+            IRoleService roleService
+        )
+        {
+            _userService = userService;
+            _roleService = roleService;
+            _mapper = mapper;
+        }
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]    
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]  
+        [HttpPost("login")]
+        [AllowAnonymous]
+        public async Task<ActionResult<UserViewModel>> Login([FromBody] LoginUserViewModel loginUser){
+            var validator = new LoginUserValidator();
+
+            var validate = validator.Validate(loginUser);
+
+            if(!validate.IsValid){
+                return HandleErrorResponse(HttpStatusCode.BadRequest, validate.ToString());
+            }
+
+            var user = _mapper.Map<UserDomainModel>(loginUser);
+
+            var userLogin = await _userService.LoginUserAsync(user);
+
+            var response = _mapper.Map<UserViewModel>(userLogin);
+
+            if(response == null){
+                return HandleErrorResponse(HttpStatusCode.Unauthorized, "Phone ou Password incorrect");
+            }
+
+            return HandleCreatedResponse(response);
+        }
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]    
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]  
+        [HttpPost("refresh/token")]
+        [AllowAnonymous]
+        public async Task<ActionResult<UserViewModel>> RefreshToken([FromBody] RefreshTokenUserViewModel refreshTokenUser){
+            var validator = new RefreshTokenUserValidator();
+
+            var validate = validator.Validate(refreshTokenUser);
+
+            if(!validate.IsValid){
+                return HandleErrorResponse(HttpStatusCode.BadRequest, validate.ToString());
+            }
+
+           
+            var User = await _userService.GetSingleByRefreshTokenAsync(refreshTokenUser.RefreshToken);
+
+            if(User == null){
+                return HandleErrorResponse(HttpStatusCode.NotFound, "user not found");
+            }
+
+
+            var token = _userService.GenerateToken(User);
+            var refresh = _userService.GenerateRefreshToken();
+
+            User.RefreshToken = refresh;
+            var updated = await _userService.UpdateUserAsync(User);
+            updated.Token = token;
+
+            return HandleCreatedResponse(updated);
+        }
+
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]    
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]   
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<ActionResult<UserViewModel>> Create([FromBody] CreateUserViewModel viewModel)
+        {
+
+            var validator = new CreateUserValidator();
+
+            var validate = validator.Validate(viewModel);
+
+            if(!validate.IsValid){
+                return HandleErrorResponse(HttpStatusCode.BadRequest, validate.ToString());
+            }
+
+            var role = await _roleService.GetRoleAsync(viewModel.RoleId);
+
+            if(role == null){
+                return HandleErrorResponse(HttpStatusCode.NotFound, "role doesn't exist");
+            }
+
+            var userd = await _userService.GetUserByPhoneAsync(viewModel.Phone);
+
+            if(userd != null){
+                return HandleErrorResponse(HttpStatusCode.NotFound, "user phone already used");
+            }
+
+            var user = _mapper.Map<UserDomainModel>(viewModel);
+            user.RoleId = (int)role.Id;
+            // create new user
+            var createdUser = await _userService.CreateUserAsync(user);
+
+            // prepare response
+            var response = _mapper.Map<UserViewModel>(createdUser);
+
+            return HandleCreatedResponse(response);
+        }
+
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]    
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]   
+        [HttpGet]
+        public async Task<ActionResult<List<UserViewModel>>> GetAll()
+        {
+            var users = await _userService.GetAllUsersAsync();
+
+            var response = _mapper.Map<List<UserViewModel>>(users);
+
+            return HandleSuccessResponse(response);
+        }
+
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]    
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]   
+        [HttpGet("{id}")]
+        [AllowAnonymous]
+        public async Task<ActionResult<UserViewModel>> GetById(int id)
+        {
+             var user = await _userService.GetUserAsync(id);
+            if(user == null){
+                return HandleErrorResponse(HttpStatusCode.NotFound, "user doesn't exist");
+            }
+            var response = _mapper.Map<UserViewModel>(user);
+
+            return HandleSuccessResponse(response);
+        }
+
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]    
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]   
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            // delete existing movie
+            await _userService.DeleteUserAsync(id);
+
+            return HandleDeletedResponse();
+        }
+
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]    
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]   
+        [HttpPut("{id}")]
+        public async Task<ActionResult<UserViewModel>> Update(int id, [FromBody] UserViewModel viewModel)
+        {
+            Contract.Requires(viewModel != null);
+           
+            // id can be in URL, body, or both
+            viewModel.Id = id;
+
+            // map view model to domain model
+            var user = _mapper.Map<UserDomainModel>(viewModel);
+
+            // update existing user
+            var updateduser = await _userService.UpdateUserAsync(user);
+
+            // prepare response
+            var response = _mapper.Map<UserViewModel>(updateduser);
+
+            // 200 response
+            return HandleSuccessResponse(response);
+        }
+
+         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]    
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]   
+        [HttpPut("{id}/update/password")]
+        public async Task<ActionResult<UserViewModel>> UpdatePassword(int id, [FromBody] UserPasswordViewModel viewModel)
+        {
+            Contract.Requires(viewModel != null);
+           
+           var validator = new UserPasswordValidator();
+
+            var validate = validator.Validate(viewModel);
+
+            if(!validate.IsValid){
+                return HandleErrorResponse(HttpStatusCode.BadRequest, validate.ToString());
+            }
+
+            // update existing User
+            var updatedUser = await _userService.UpdatePasswordAsync(id, viewModel.odlpassword, viewModel.newpassword);
+
+            // prepare response
+            var response = _mapper.Map<UserViewModel>(updatedUser);
+
+            if(response == null){
+                return HandleErrorResponse(HttpStatusCode.NotModified, "User doesn't exit or password doesn't match");
+            }
+
+            // 200 response
+            return HandleSuccessResponse(response);
+        }
+    }
+}

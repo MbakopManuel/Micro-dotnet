@@ -1,1 +1,1 @@
-pm2 delete user.microservice;pm2 delete gateway.webapi;dotnet build ../Microservice.WebApi.sln;pm2 start start-user.sh --name user.microservice;pm2 start start-gateway.sh --name gateway.webapi;
+pm2 delete sampleauth.microservice;pm2 delete gateway.webapi;dotnet build ../Microservice.WebApi.sln;pm2 start start-user.sh --name sampleauth.microservice;pm2 start start-gateway.sh --name gateway.webapi;

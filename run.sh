@@ -1,8 +1,11 @@
 #!/bin/bash
 
-SAMPLEDIR="Sample.Microservice"
+SAMPLEDIR=".Sample.Microservice"
 SAMPLENAME="Sample"
 SAMPLENAMEMIN="Sample"
+SAMPLEAUTHDIR=".SampleAuth.Microservice"
+SAMPLEAUTHNAME="SampleAuth"
+SAMPLEAUTHNAMEMIN="SampleAuth"
 OPDIR="Operations"
 SEDIR="Services"
 REDIR="Repositories"
@@ -19,8 +22,23 @@ create_project(){
 rename_project(){
     name=$1
     lowerName=${name,,}
-    dotnet run -p ./RenameUtility/RenameUtility -- "$name.Microservice" $SAMPLENAME $name
-    dotnet run -p ./RenameUtility/RenameUtility -- "$name.Microservice" ${SAMPLENAME,,} $lowerName
+    dotnet run -p ./.RenameUtility/RenameUtility -- "$name.Microservice" $SAMPLENAME $name
+    dotnet run -p ./.RenameUtility/RenameUtility -- "$name.Microservice" ${SAMPLENAME,,} $lowerName
+}
+
+create_project_with_auth(){
+    name=$1
+    echo "project creation ..."
+    cp -r "$SAMPLEAUTHDIR" "$name.Microservice"
+    echo "project created ..."
+}
+
+#renommer le projet
+rename_project_with_auth(){
+    name=$1
+    lowerName=${name,,}
+    dotnet run -p ./.RenameUtility/RenameUtility -- "$name.Microservice" $SAMPLEAUTHNAME $name
+    dotnet run -p ./.RenameUtility/RenameUtility -- "$name.Microservice" ${SAMPLEAUTHNAME,,} $lowerName
 }
 
 #suppression d'un projet
@@ -83,19 +101,19 @@ rename_folders(){
     lowerName=${lowerName%?}
     echo "renaming..."
     #rename des opérations
-    dotnet run -p ./RenameUtility/RenameUtility -- "$projet.Microservice/$OPDIR/${name}" "Sample" ${name%?}
-    dotnet run -p ./RenameUtility/RenameUtility -- "$projet.Microservice/$OPDIR/${name}" "sample" $lowerName
+    dotnet run -p ./.RenameUtility/RenameUtility -- "$projet.Microservice/$OPDIR/${name}" "Sample" ${name%?}
+    dotnet run -p ./.RenameUtility/RenameUtility -- "$projet.Microservice/$OPDIR/${name}" "sample" $lowerName
 
     #rename des services
-    dotnet run -p ./RenameUtility/RenameUtility -- "$projet.Microservice/$SEDIR/${name}" "Sample" ${name%?}
-    dotnet run -p ./RenameUtility/RenameUtility -- "$projet.Microservice/$SEDIR/${name}" "sample" $lowerName
+    dotnet run -p ./.RenameUtility/RenameUtility -- "$projet.Microservice/$SEDIR/${name}" "Sample" ${name%?}
+    dotnet run -p ./.RenameUtility/RenameUtility -- "$projet.Microservice/$SEDIR/${name}" "sample" $lowerName
 
     #rename des repositories
-    dotnet run -p ./RenameUtility/RenameUtility -- "$projet.Microservice/$REDIR/${name}" "Sample" ${name%?}
-    dotnet run -p ./RenameUtility/RenameUtility -- "$projet.Microservice/$REDIR/${name}" "sample" $lowerName
+    dotnet run -p ./.RenameUtility/RenameUtility -- "$projet.Microservice/$REDIR/${name}" "Sample" ${name%?}
+    dotnet run -p ./.RenameUtility/RenameUtility -- "$projet.Microservice/$REDIR/${name}" "sample" $lowerName
 
 
-    dotnet run -p ./RenameUtility/RenameUtility -- "$projet.Microservice/" "${name%?}.Microservice" "$projet.Microservice"
+    dotnet run -p ./.RenameUtility/RenameUtility -- "$projet.Microservice/" "${name%?}.Microservice" "$projet.Microservice"
 	echo "end."
 }
 
@@ -108,14 +126,28 @@ main(){
 }
 
 main_project(){
-    #create project
-    create_project $1 
-    #renommage du projet
-    rename_project $1
-    #ajouter un projet à la solution
-    add_in_solution $1
-    #build projet
-    build_project
+    if [ $# -ge 2 ]
+    then
+        echo "create with authentification ..."
+        #create project
+        create_project_with_auth $1 
+        #renommage du projet
+        rename_project_with_auth $1
+        #ajouter un projet à la solution
+        add_in_solution $1
+        #build projet
+        build_project
+    else
+        echo "create without authentification ..."
+        #create project
+        create_project $1 
+        #renommage du projet
+        rename_project $1
+        #ajouter un projet à la solution
+        add_in_solution $1
+        #build projet
+        build_project
+    fi
 }
 
 build_project(){
@@ -144,26 +176,39 @@ then
 	    delete_folders $2 $3
 	    ;;
 	add-project)
-	    main_project $2
+        if [ $# -eq 3 ]
+        then
+            if [ $3 = "--with-auth" -o $3 = "-wa" ]
+            then 
+	            main_project $2 $3
+            else
+                echo "
+                    OPTIONS: 
+                        --with-auth or -wa : create project with authentification based admin role
+                    "
+            fi
+        else
+            main_project $2
+        fi
 	    ;;
 	delete-project)
 	    delete_project $2
 	    ;;
     rename)
         echo "$2 $3"
-	    dotnet run -p ./RenameUtility/RenameUtility -- "./" $2 $3
+	    dotnet run -p ./.RenameUtility/RenameUtility -- "./" $2 $3
 
         echo "${2,,} ${3,,}"
-	    dotnet run -p ./RenameUtility/RenameUtility -- "./" ${2,,} ${3,,}
+	    dotnet run -p ./.RenameUtility/RenameUtility -- "./" ${2,,} ${3,,}
      
         build_project
 	    ;;
     rename-in)
         echo "$2 $3 $4"
-	    dotnet run -p ./RenameUtility/RenameUtility -- $2 $3 $4
+	    dotnet run -p ./.RenameUtility/RenameUtility -- $2 $3 $4
 
         echo "$2 ${3,,} ${4,,}"
-	    dotnet run -p ./RenameUtility/RenameUtility -- $2 ${3,,} ${4,,}
+	    dotnet run -p ./.RenameUtility/RenameUtility -- $2 ${3,,} ${4,,}
      
         build_project
 	    ;;
@@ -172,26 +217,35 @@ then
         ;;
 	*)
 	    echo "run <COMMAND> : \n 
-                add-project [PROJECT_NAME] \n
+                add-project [PROJECT_NAME] [--OPTIONS] \n
                 add-service [PROJECT_NAME] [SERVICE_NAME] \n
                 delete [FOLDER_NAME] \n
                 delete-service [PROJECT_NAME] [SERVICE_NAME] \n
                 delete-project [PROJECT_NAME] \n
                 rename [OLD_NAME] [NEW_NAME] \n
-                rename-in [PROJECT_NAME] [OLD_NAME] [NEW_NAME]"
+                rename-in [PROJECT_NAME] [OLD_NAME] [NEW_NAME]
+                
+                
+            OPTIONS: 
+                --with-auth or -wa : create project with authentification based admin role
+                "
 	    ;;
    esac
 		   
 else
     echo "
             run <COMMAND> :  
-                add-project [PROJECT_NAME] 
+                add-project [PROJECT_NAME] [--OPTIONS]
                 add-service [PROJECT_NAME] [SERVICE_NAME] 
                 delete [FOLDER_NAME] 
                 delete-service [PROJECT_NAME] [SERVICE_NAME] 
                 delete-project [PROJECT_NAME] 
                 rename [OLD_NAME] [NEW_NAME] 
                 rename-in [PROJECT_NAME] [OLD_NAME] [NEW_NAME]
+
+
+            OPTIONS: 
+                --with-auth or -wa : create project with authentification based admin role
                 
         "
 fi
