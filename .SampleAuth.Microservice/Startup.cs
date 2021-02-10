@@ -73,6 +73,11 @@ namespace SampleAuth.Microservice
 
             });
             #endregion
+
+            services.AddControllersWithViews()
+                .AddNewtonsoftJson(options =>
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
+            );
             services.AddControllers();
             services.AddMvc().AddFluentValidation();
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
