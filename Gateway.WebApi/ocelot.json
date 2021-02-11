@@ -92,6 +92,19 @@
       "UpstreamPathTemplate": "/api/user/{id}/update/password",
       "UpstreamHttpMethod": [ "PUT" ],
       "SwaggerKey": "users"
+    },
+    {
+      "DownstreamPathTemplate": "/user/{email}/reinitialize/password",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": 44373
+        }
+      ],
+      "UpstreamPathTemplate": "/api/user/{email}/reinitialize/password",
+      "UpstreamHttpMethod": [ "GET" ],
+      "SwaggerKey": "users"
     }
 
   ],
