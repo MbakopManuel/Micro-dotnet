@@ -303,5 +303,41 @@ namespace SampleAuth.Microservice.Operations
                 return HandleErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
         }
+
+
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]    
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]   
+        [HttpPut("{email}/reinitialize/password")]
+        [AllowAnonymous]
+        public async Task<ActionResult<UserViewModel>> ReinitializePassword(string email)
+        {
+            
+            var user = await _userService.GetUserByEmailAsync(email);
+            if(user == null){
+                return HandleErrorResponse(HttpStatusCode.NotFound, "user not found");
+            }
+
+            Random random = new Random();
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            var pw = new string(Enumerable.Repeat(chars, 6)
+                            .Select(s => s[random.Next(s.Length)]).ToArray());
+
+              // update existing client
+            var updateduser = await _userService.UpdatePasswordAsync((int)user.Id, "azerty", pw);
+            // prepare response
+            var response = _mapper.Map<UserViewModel>(updateduser);
+
+            if(response == null){
+                return HandleErrorResponse(HttpStatusCode.NotFound, "Client doesn't exit or password doesn't match");
+            }
+
+            EmailService emailSend = new EmailService();
+            emailSend.SendText(null, email, "Reset Password", $"New Password : {pw}");
+
+            // 200 response
+            return HandleSuccessResponse(response);
+        }
     }
 }
