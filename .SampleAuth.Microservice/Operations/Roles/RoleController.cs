@@ -43,23 +43,30 @@ namespace SampleAuth.Microservice.Operations
         public async Task<ActionResult<RoleViewModel>> Create([FromBody] CreateRoleViewModel viewModel)
         {
 
-            var validator = new CreateRoleValidator();
+            try
+            {
+                var validator = new CreateRoleValidator();
 
-            var validate = validator.Validate(viewModel);
+                var validate = validator.Validate(viewModel);
 
-            if(!validate.IsValid){
-                return HandleErrorResponse(HttpStatusCode.BadRequest, validate.ToString());
+                if(!validate.IsValid){
+                    return HandleErrorResponse(HttpStatusCode.BadRequest, validate.ToString());
+                }
+
+                var role = _mapper.Map<RoleDomainModel>(viewModel);
+
+                // create new role
+                var createdRole = await _roleService.CreateRoleAsync(role);
+
+                // prepare response
+                var response = _mapper.Map<RoleViewModel>(createdRole);
+
+                return HandleCreatedResponse(response);
             }
-
-            var role = _mapper.Map<RoleDomainModel>(viewModel);
-
-            // create new role
-            var createdRole = await _roleService.CreateRoleAsync(role);
-
-            // prepare response
-            var response = _mapper.Map<RoleViewModel>(createdRole);
-
-            return HandleCreatedResponse(response);
+            catch (Exception ex)
+            {
+                return HandleErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
 
 
@@ -70,11 +77,18 @@ namespace SampleAuth.Microservice.Operations
         [HttpGet]
         public async Task<ActionResult<List<RoleViewModel>>> GetAll()
         {
-            var roles = await _roleService.GetAllRolesAsync();
+            try
+            {
+                var roles = await _roleService.GetAllRolesAsync();
 
-            var response = _mapper.Map<List<RoleViewModel>>(roles);
+                var response = _mapper.Map<List<RoleViewModel>>(roles);
 
-            return HandleSuccessResponse(response);
+                return HandleSuccessResponse(response);
+            }
+            catch (Exception ex)
+            {
+                return HandleErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
 
 
@@ -85,13 +99,20 @@ namespace SampleAuth.Microservice.Operations
         [HttpGet("{id}")]
         public async Task<ActionResult<RoleViewModel>> GetById(int id)
         {
-             var role = await _roleService.GetRoleAsync(id);
-            if(role == null){
-                return HandleErrorResponse(HttpStatusCode.NotFound, "role doesn't exist");
-            }
-            var response = _mapper.Map<RoleViewModel>(role);
+            try
+            {
+                var role = await _roleService.GetRoleAsync(id);
+                if(role == null){
+                    return HandleErrorResponse(HttpStatusCode.NotFound, "role doesn't exist");
+                }
+                var response = _mapper.Map<RoleViewModel>(role);
 
-            return HandleSuccessResponse(response);
+                return HandleSuccessResponse(response);
+            }
+            catch (Exception ex)
+            {
+                return HandleErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
 
 
@@ -102,10 +123,17 @@ namespace SampleAuth.Microservice.Operations
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            // delete existing movie
-            await _roleService.DeleteRoleAsync(id);
+            try
+            {
+                // delete existing movie
+                await _roleService.DeleteRoleAsync(id);
 
-            return HandleDeletedResponse();
+                return HandleDeletedResponse();
+            }
+            catch (Exception ex)
+            {
+                return HandleErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
 
 
@@ -116,22 +144,29 @@ namespace SampleAuth.Microservice.Operations
         [HttpPut("{id}")]
         public async Task<ActionResult<RoleViewModel>> Update(int id, [FromBody] RoleViewModel viewModel)
         {
-            Contract.Requires(viewModel != null);
-           
-            // id can be in URL, body, or both
-            viewModel.Id = id;
+            try
+            {
+                Contract.Requires(viewModel != null);
+            
+                // id can be in URL, body, or both
+                viewModel.Id = id;
 
-            // map view model to domain model
-            var role = _mapper.Map<RoleDomainModel>(viewModel);
+                // map view model to domain model
+                var role = _mapper.Map<RoleDomainModel>(viewModel);
 
-            // update existing role
-            var updatedrole = await _roleService.UpdateRoleAsync(role);
+                // update existing role
+                var updatedrole = await _roleService.UpdateRoleAsync(role);
 
-            // prepare response
-            var response = _mapper.Map<RoleViewModel>(updatedrole);
+                // prepare response
+                var response = _mapper.Map<RoleViewModel>(updatedrole);
 
-            // 200 response
-            return HandleSuccessResponse(response);
+                // 200 response
+                return HandleSuccessResponse(response);
+            }
+            catch (Exception ex)
+            {
+                return HandleErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
     }
 }

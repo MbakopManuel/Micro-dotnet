@@ -40,23 +40,30 @@ namespace Sample.Microservice.Operations
         public async Task<ActionResult<SampleViewModel>> Create([FromBody] CreateSampleViewModel viewModel)
         {
 
-            var validator = new CreateSampleValidator();
+           try
+            {
+                var validator = new CreateSampleValidator();
 
-            var validate = validator.Validate(viewModel);
+                var validate = validator.Validate(viewModel);
 
-            if(!validate.IsValid){
-                return HandleErrorResponse(HttpStatusCode.BadRequest, validate.ToString());
+                if(!validate.IsValid){
+                    return HandleErrorResponse(HttpStatusCode.BadRequest, validate.ToString());
+                }
+
+                var sample = _mapper.Map<SampleDomainModel>(viewModel);
+
+                // create new sample
+                var createdSample = await _sampleService.CreateSampleAsync(sample);
+
+                // prepare response
+                var response = _mapper.Map<SampleViewModel>(createdSample);
+
+                return HandleCreatedResponse(response);
             }
-
-            var sample = _mapper.Map<SampleDomainModel>(viewModel);
-
-            // create new sample
-            var createdSample = await _sampleService.CreateSampleAsync(sample);
-
-            // prepare response
-            var response = _mapper.Map<SampleViewModel>(createdSample);
-
-            return HandleCreatedResponse(response);
+            catch (Exception ex)
+            {
+                return HandleErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
 
 
@@ -67,11 +74,18 @@ namespace Sample.Microservice.Operations
         [HttpGet]
         public async Task<ActionResult<List<SampleViewModel>>> GetAll()
         {
-            var samples = await _sampleService.GetAllSamplesAsync();
+           try
+            {
+                var samples = await _sampleService.GetAllSamplesAsync();
 
-            var response = _mapper.Map<List<SampleViewModel>>(samples);
+                var response = _mapper.Map<List<SampleViewModel>>(samples);
 
-            return HandleSuccessResponse(response);
+                return HandleSuccessResponse(response);
+            }
+            catch (Exception ex)
+            {
+                return HandleErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
 
 
@@ -82,11 +96,18 @@ namespace Sample.Microservice.Operations
         [HttpGet("{id}")]
         public async Task<ActionResult<SampleViewModel>> GetById(int id)
         {
-             var sample = await _sampleService.GetSampleAsync(id);
+           try
+            {
+                var sample = await _sampleService.GetSampleAsync(id);
 
-            var response = _mapper.Map<SampleViewModel>(sample);
+                var response = _mapper.Map<SampleViewModel>(sample);
 
-            return HandleSuccessResponse(response);
+                return HandleSuccessResponse(response);
+            }
+            catch (Exception ex)
+            {
+                return HandleErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
 
 
@@ -98,9 +119,16 @@ namespace Sample.Microservice.Operations
         public async Task<IActionResult> Delete(int id)
         {
             // delete existing movie
-            await _sampleService.DeleteSampleAsync(id);
+            try
+            {
+                await _sampleService.DeleteSampleAsync(id);
 
-            return HandleDeletedResponse();
+                return HandleDeletedResponse();
+            }
+            catch (Exception ex)
+            {
+                return HandleErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
 
 
@@ -111,22 +139,29 @@ namespace Sample.Microservice.Operations
         [HttpPut("{id}")]
         public async Task<ActionResult<SampleViewModel>> Update(int id, [FromBody] SampleViewModel viewModel)
         {
-            Contract.Requires(viewModel != null);
-           
-            // id can be in URL, body, or both
-            viewModel.Id = id;
+            try
+            {
+                Contract.Requires(viewModel != null);
+            
+                // id can be in URL, body, or both
+                viewModel.Id = id;
 
-            // map view model to domain model
-            var sample = _mapper.Map<SampleDomainModel>(viewModel);
+                // map view model to domain model
+                var sample = _mapper.Map<SampleDomainModel>(viewModel);
 
-            // update existing sample
-            var updatedsample = await _sampleService.UpdateSampleAsync(sample);
+                // update existing sample
+                var updatedsample = await _sampleService.UpdateSampleAsync(sample);
 
-            // prepare response
-            var response = _mapper.Map<SampleViewModel>(updatedsample);
+                // prepare response
+                var response = _mapper.Map<SampleViewModel>(updatedsample);
 
-            // 200 response
-            return HandleSuccessResponse(response);
+                // 200 response
+                return HandleSuccessResponse(response);
+            }
+            catch (Exception ex)
+            {
+                return HandleErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
     }
 }

@@ -49,25 +49,32 @@ namespace SampleAuth.Microservice.Operations
         [HttpPost("login")]
         [AllowAnonymous]
         public async Task<ActionResult<UserViewModel>> Login([FromBody] LoginUserViewModel loginUser){
-            var validator = new LoginUserValidator();
+            try
+            {
+                var validator = new LoginUserValidator();
 
-            var validate = validator.Validate(loginUser);
+                var validate = validator.Validate(loginUser);
 
-            if(!validate.IsValid){
-                return HandleErrorResponse(HttpStatusCode.BadRequest, validate.ToString());
+                if(!validate.IsValid){
+                    return HandleErrorResponse(HttpStatusCode.BadRequest, validate.ToString());
+                }
+
+                var user = _mapper.Map<UserDomainModel>(loginUser);
+
+                var userLogin = await _userService.LoginUserAsync(user);
+
+                var response = _mapper.Map<UserViewModel>(userLogin);
+
+                if(response == null){
+                    return HandleErrorResponse(HttpStatusCode.Unauthorized, "Phone ou Password incorrect");
+                }
+
+                return HandleCreatedResponse(response);
             }
-
-            var user = _mapper.Map<UserDomainModel>(loginUser);
-
-            var userLogin = await _userService.LoginUserAsync(user);
-
-            var response = _mapper.Map<UserViewModel>(userLogin);
-
-            if(response == null){
-                return HandleErrorResponse(HttpStatusCode.Unauthorized, "Phone ou Password incorrect");
+            catch (Exception ex)
+            {
+                return HandleErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
-
-            return HandleCreatedResponse(response);
         }
 
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -77,30 +84,37 @@ namespace SampleAuth.Microservice.Operations
         [HttpPost("refresh/token")]
         [AllowAnonymous]
         public async Task<ActionResult<UserViewModel>> RefreshToken([FromBody] RefreshTokenUserViewModel refreshTokenUser){
-            var validator = new RefreshTokenUserValidator();
+            try
+            {
+                var validator = new RefreshTokenUserValidator();
 
-            var validate = validator.Validate(refreshTokenUser);
+                var validate = validator.Validate(refreshTokenUser);
 
-            if(!validate.IsValid){
-                return HandleErrorResponse(HttpStatusCode.BadRequest, validate.ToString());
+                if(!validate.IsValid){
+                    return HandleErrorResponse(HttpStatusCode.BadRequest, validate.ToString());
+                }
+
+            
+                var User = await _userService.GetSingleByRefreshTokenAsync(refreshTokenUser.RefreshToken);
+
+                if(User == null){
+                    return HandleErrorResponse(HttpStatusCode.NotFound, "user not found");
+                }
+
+
+                var token = _userService.GenerateToken(User);
+                var refresh = _userService.GenerateRefreshToken();
+
+                User.RefreshToken = refresh;
+                var updated = await _userService.UpdateUserAsync(User);
+                updated.Token = token;
+
+                return HandleCreatedResponse(updated);
             }
-
-           
-            var User = await _userService.GetSingleByRefreshTokenAsync(refreshTokenUser.RefreshToken);
-
-            if(User == null){
-                return HandleErrorResponse(HttpStatusCode.NotFound, "user not found");
+            catch (Exception ex)
+            {
+                return HandleErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
-
-
-            var token = _userService.GenerateToken(User);
-            var refresh = _userService.GenerateRefreshToken();
-
-            User.RefreshToken = refresh;
-            var updated = await _userService.UpdateUserAsync(User);
-            updated.Token = token;
-
-            return HandleCreatedResponse(updated);
         }
 
 
@@ -113,35 +127,42 @@ namespace SampleAuth.Microservice.Operations
         public async Task<ActionResult<UserViewModel>> Create([FromBody] CreateUserViewModel viewModel)
         {
 
-            var validator = new CreateUserValidator();
+            try
+            {
+                var validator = new CreateUserValidator();
 
-            var validate = validator.Validate(viewModel);
+                var validate = validator.Validate(viewModel);
 
-            if(!validate.IsValid){
-                return HandleErrorResponse(HttpStatusCode.BadRequest, validate.ToString());
+                if(!validate.IsValid){
+                    return HandleErrorResponse(HttpStatusCode.BadRequest, validate.ToString());
+                }
+
+                var role = await _roleService.GetRoleAsync(viewModel.RoleId);
+
+                if(role == null){
+                    return HandleErrorResponse(HttpStatusCode.NotFound, "role doesn't exist");
+                }
+
+                var userd = await _userService.GetUserByPhoneAsync(viewModel.Phone);
+
+                if(userd != null){
+                    return HandleErrorResponse(HttpStatusCode.NotFound, "user phone already used");
+                }
+
+                var user = _mapper.Map<UserDomainModel>(viewModel);
+                user.RoleId = (int)role.Id;
+                // create new user
+                var createdUser = await _userService.CreateUserAsync(user);
+
+                // prepare response
+                var response = _mapper.Map<UserViewModel>(createdUser);
+
+                return HandleCreatedResponse(response);
             }
-
-            var role = await _roleService.GetRoleAsync(viewModel.RoleId);
-
-            if(role == null){
-                return HandleErrorResponse(HttpStatusCode.NotFound, "role doesn't exist");
+            catch (Exception ex)
+            {
+                return HandleErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
-
-            var userd = await _userService.GetUserByPhoneAsync(viewModel.Phone);
-
-            if(userd != null){
-                return HandleErrorResponse(HttpStatusCode.NotFound, "user phone already used");
-            }
-
-            var user = _mapper.Map<UserDomainModel>(viewModel);
-            user.RoleId = (int)role.Id;
-            // create new user
-            var createdUser = await _userService.CreateUserAsync(user);
-
-            // prepare response
-            var response = _mapper.Map<UserViewModel>(createdUser);
-
-            return HandleCreatedResponse(response);
         }
 
 
@@ -152,11 +173,18 @@ namespace SampleAuth.Microservice.Operations
         [HttpGet]
         public async Task<ActionResult<List<UserViewModel>>> GetAll()
         {
-            var users = await _userService.GetAllUsersAsync();
+            try
+            {
+                var users = await _userService.GetAllUsersAsync();
 
-            var response = _mapper.Map<List<UserViewModel>>(users);
+                var response = _mapper.Map<List<UserViewModel>>(users);
 
-            return HandleSuccessResponse(response);
+                return HandleSuccessResponse(response);
+            }
+            catch (Exception ex)
+            {
+                return HandleErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
 
 
@@ -168,13 +196,20 @@ namespace SampleAuth.Microservice.Operations
         [AllowAnonymous]
         public async Task<ActionResult<UserViewModel>> GetById(int id)
         {
-             var user = await _userService.GetUserAsync(id);
-            if(user == null){
-                return HandleErrorResponse(HttpStatusCode.NotFound, "user doesn't exist");
-            }
-            var response = _mapper.Map<UserViewModel>(user);
+            try
+            {
+                var user = await _userService.GetUserAsync(id);
+                if(user == null){
+                    return HandleErrorResponse(HttpStatusCode.NotFound, "user doesn't exist");
+                }
+                var response = _mapper.Map<UserViewModel>(user);
 
-            return HandleSuccessResponse(response);
+                return HandleSuccessResponse(response);
+            }
+            catch (Exception ex)
+            {
+                return HandleErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
 
 
@@ -185,10 +220,17 @@ namespace SampleAuth.Microservice.Operations
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            // delete existing movie
-            await _userService.DeleteUserAsync(id);
+            try
+            {
+                // delete existing movie
+                await _userService.DeleteUserAsync(id);
 
-            return HandleDeletedResponse();
+                return HandleDeletedResponse();
+            }
+            catch (Exception ex)
+            {
+                return HandleErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
 
 
@@ -199,22 +241,29 @@ namespace SampleAuth.Microservice.Operations
         [HttpPut("{id}")]
         public async Task<ActionResult<UserViewModel>> Update(int id, [FromBody] UserViewModel viewModel)
         {
-            Contract.Requires(viewModel != null);
-           
-            // id can be in URL, body, or both
-            viewModel.Id = id;
+           try
+            {
+                Contract.Requires(viewModel != null);
+            
+                // id can be in URL, body, or both
+                viewModel.Id = id;
 
-            // map view model to domain model
-            var user = _mapper.Map<UserDomainModel>(viewModel);
+                // map view model to domain model
+                var user = _mapper.Map<UserDomainModel>(viewModel);
 
-            // update existing user
-            var updateduser = await _userService.UpdateUserAsync(user);
+                // update existing user
+                var updateduser = await _userService.UpdateUserAsync(user);
 
-            // prepare response
-            var response = _mapper.Map<UserViewModel>(updateduser);
+                // prepare response
+                var response = _mapper.Map<UserViewModel>(updateduser);
 
-            // 200 response
-            return HandleSuccessResponse(response);
+                // 200 response
+                return HandleSuccessResponse(response);
+            }
+            catch (Exception ex)
+            {
+                return HandleErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
         }
 
          [ProducesResponseType(StatusCodes.Status200OK)]
@@ -224,28 +273,35 @@ namespace SampleAuth.Microservice.Operations
         [HttpPut("{id}/update/password")]
         public async Task<ActionResult<UserViewModel>> UpdatePassword(int id, [FromBody] UserPasswordViewModel viewModel)
         {
-            Contract.Requires(viewModel != null);
-           
-           var validator = new UserPasswordValidator();
+           try
+            {
+                Contract.Requires(viewModel != null);
+            
+                var validator = new UserPasswordValidator();
 
-            var validate = validator.Validate(viewModel);
+                var validate = validator.Validate(viewModel);
 
-            if(!validate.IsValid){
-                return HandleErrorResponse(HttpStatusCode.BadRequest, validate.ToString());
+                if(!validate.IsValid){
+                    return HandleErrorResponse(HttpStatusCode.BadRequest, validate.ToString());
+                }
+
+                // update existing User
+                var updatedUser = await _userService.UpdatePasswordAsync(id, viewModel.odlpassword, viewModel.newpassword);
+
+                // prepare response
+                var response = _mapper.Map<UserViewModel>(updatedUser);
+
+                if(response == null){
+                    return HandleErrorResponse(HttpStatusCode.NotModified, "User doesn't exit or password doesn't match");
+                }
+
+                // 200 response
+                return HandleSuccessResponse(response);
             }
-
-            // update existing User
-            var updatedUser = await _userService.UpdatePasswordAsync(id, viewModel.odlpassword, viewModel.newpassword);
-
-            // prepare response
-            var response = _mapper.Map<UserViewModel>(updatedUser);
-
-            if(response == null){
-                return HandleErrorResponse(HttpStatusCode.NotModified, "User doesn't exit or password doesn't match");
+            catch (Exception ex)
+            {
+                return HandleErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
-
-            // 200 response
-            return HandleSuccessResponse(response);
         }
     }
 }
