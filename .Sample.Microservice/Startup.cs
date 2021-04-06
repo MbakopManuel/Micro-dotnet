@@ -89,7 +89,6 @@ namespace Sample.Microservice
 
             });
             #endregion
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme);
             services.AddControllersWithViews()
                 .AddNewtonsoftJson(options =>
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore

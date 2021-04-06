@@ -76,6 +76,12 @@ namespace SampleAuth.Microservice.Services.User {
             return _mapper.Map<UserDomainModel>(user);
         }
 
+        public async Task<UserDomainModel> GetUserByEmailAsync(string Email)
+        {
+            var user = await _userRepository.GetSingleByEmailAsync(Email);
+            return _mapper.Map<UserDomainModel>(user);
+        }
+
         public async Task<UserDomainModel> GetSingleByRefreshTokenAsync(string refresh)
         {
             var dto = await _userRepository.GetSingleByRefreshTokenAsync(refresh);

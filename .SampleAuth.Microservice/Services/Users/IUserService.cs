@@ -24,6 +24,7 @@ namespace SampleAuth.Microservice.Services.User {
         string GenerateRefreshToken();
         Task<UserDomainModel> GetSingleByRefreshTokenAsync(string refresh);
         Task<UserDomainModel> GetUserByPhoneAsync(string phone);
+        Task<UserDomainModel> GetUserByEmailAsync(string Email);
     }
 
 }

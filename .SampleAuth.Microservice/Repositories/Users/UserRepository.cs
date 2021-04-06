@@ -67,6 +67,16 @@ namespace SampleAuth.Microservice.Repositories.User {
             return user;
         }
 
+
+
+        public async Task<UserDtoModel> GetSingleByEmailAsync(string Email)
+        {
+            var user =  await _context.Users
+                                    .Include(x => x.Role)
+                                    .FirstOrDefaultAsync(x => x.Email == Email);
+            return user;
+        }
+
          public async Task<UserDtoModel> GetSingleByRefreshTokenAsync(string refresh)
         {
             var User =  await _context.Users

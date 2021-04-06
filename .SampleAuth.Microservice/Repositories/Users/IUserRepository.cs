@@ -20,6 +20,7 @@ namespace SampleAuth.Microservice.Repositories.User {
 
         Task<int> DeleteAsync(int id);
         Task<UserDtoModel> GetSingleByPhoneAsync(string phone);
+        Task<UserDtoModel> GetSingleByEmailAsync(string Email);
 
     }
 
