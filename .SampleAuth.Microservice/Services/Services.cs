@@ -53,6 +53,7 @@ namespace SampleAuth.Microservice.Services {
                 new WeatherResponseProfile(),
 
                 new UserProfile(),
+                new LoginUserRequestProfile(),
                 new UserResponseProfile(),
                 new CreateUserRequestProfile(),
                 new UpdateUserRequestProfile(),
