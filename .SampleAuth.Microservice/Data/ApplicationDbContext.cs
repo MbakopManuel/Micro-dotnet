@@ -17,8 +17,12 @@ namespace SampleAuth.Microservice.Data
         {
         }
 
-        DbSet<UserDtoModel> IApplicationDbContext.Users { get; set; }
-        DbSet<RoleDtoModel> IApplicationDbContext.Roles { get; set; }
+        /** Begin DBContext Adding */
+            
+            DbSet<UserDtoModel> IApplicationDbContext.Users { get; set; }
+            DbSet<RoleDtoModel> IApplicationDbContext.Roles { get; set; }
+
+        /** End DBContext Adding */
 
         public async Task<int> SaveChanges()
         {

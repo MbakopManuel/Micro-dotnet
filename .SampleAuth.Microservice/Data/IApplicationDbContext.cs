@@ -10,8 +10,12 @@ namespace SampleAuth.Microservice.Data
 {
     public interface IApplicationDbContext
     {
-        DbSet<UserDtoModel> Users{ get; set; }
-        DbSet<RoleDtoModel> Roles{ get; set; }
+        /** Begin Interface DBContext Adding */
+
+            DbSet<UserDtoModel> Users{ get; set; }
+            DbSet<RoleDtoModel> Roles{ get; set; }
+        
+        /** End Interface DBContext Adding */
         Task<int> SaveChanges();
     }
 }

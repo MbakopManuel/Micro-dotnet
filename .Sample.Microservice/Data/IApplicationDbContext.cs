@@ -9,7 +9,12 @@ namespace Sample.Microservice.Data
 {
     public interface IApplicationDbContext
     {
-        DbSet<SampleDtoModel> Samples{ get; set; }
+
+        /** Begin Interface DBContext Adding */
+
+            DbSet<SampleDtoModel> Samples{ get; set; }
+
+        /** End Interface DBContext Adding */
         Task<int> SaveChanges();
     }
 }

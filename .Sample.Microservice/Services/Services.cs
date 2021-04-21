@@ -1,19 +1,23 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using AutoMapper;
+/** 
+    This file is the file that make importations, injections dependancies, and profiles adding
 
-using Sample.Microservice.Repositories.Weather;
-using Sample.Microservice.Services.Weather;
-using Sample.Microservice.Operations.Weather.MapperProfiles;
-using Sample.Microservice.Services.Weather.MapperProfiles;
+ */
 
-using Sample.Microservice.Repositories.Sample;
-using Sample.Microservice.Services.Sample;
-using Sample.Microservice.Operations.Sample.MapperProfiles;
-using Sample.Microservice.Services.Sample.MapperProfiles;
+/** Begin Import */
+
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.DependencyInjection.Extensions;
+    using AutoMapper;
+
+    using Sample.Microservice.Repositories.Sample;
+    using Sample.Microservice.Services.Sample;
+    using Sample.Microservice.Operations.Sample.MapperProfiles;
+    using Sample.Microservice.Services.Sample.MapperProfiles;
+
+/* End Import */
 
 
 namespace Sample.Microservice.Services {
@@ -30,23 +34,27 @@ namespace Sample.Microservice.Services {
         public Service(){}
 
         public void addService(){
-            _services.TryAddScoped<IWeatherRepository, WeatherRepository>();
-            _services.TryAddTransient<IWeatherService, WeatherService>();
+             /** Begin Injection  */
             
-            _services.TryAddScoped<ISampleRepository, SampleRepository>();
-            _services.TryAddTransient<ISampleService, SampleService>();
+                _services.TryAddScoped<ISampleRepository, SampleRepository>();
+                _services.TryAddTransient<ISampleService, SampleService>();
+            
+            /** End Injection */
           
         }
 
         public IEnumerable<Profile> addProfile(){
             var profiles = new Profile[] { 
-                new WeatherProfile(),
-                new WeatherResponseProfile(),
 
-                new SampleProfile(),
-                new SampleResponseProfile(),
-                new CreateSampleRequestProfile(),
-                new UpdateSampleRequestProfile()
+                /** Begin Adding Profiles */
+
+                    new SampleProfile(),
+                    new SampleResponseProfile(),
+                    new CreateSampleRequestProfile(),
+                    new UpdateSampleRequestProfile()
+
+                /** End Adding Profiles */
+                
              };
 
              return profiles;

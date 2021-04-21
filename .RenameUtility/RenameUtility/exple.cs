@@ -3,62 +3,78 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace RenameUtility
+namespace RenameUtility.Exple
 {
-    internal class Program
+    internal class Exple
     {
-        private static void Main(string[] args)
+        private Exple(string[] args)
         {
-            string projectPath;
-            string oldName;
-            string newName;
+            // string projectPath;
+            // string oldName;
+            // string newName;
 
-            if (args.Length < 3)
-            {
-                Console.WriteLine("Use: dotnet | Path to Renamer.dll | Path to IntekorServer Project | Old Name | New Name");
-                Console.WriteLine(@"Ex: dotnet C:\Renamer\bin\Debug\netcoreapp2.0\Renamer.dll C:\blackslope.net IntekorServer BlockBuster");
+            // if (args.Length < 3)
+            // {
+            //     Console.WriteLine("Use: dotnet | Path to Renamer.dll | Path to IntekorServer Project | Old Name | New Name");
+            //     Console.WriteLine(@"Ex: dotnet C:\Renamer\bin\Debug\netcoreapp2.0\Renamer.dll C:\blackslope.net IntekorServer BlockBuster");
 
-                Console.WriteLine("\nWhat is the path to your project?");
-                projectPath = Console.ReadLine();
+            //     Console.WriteLine("\nWhat is the path to your project?");
+            //     projectPath = Console.ReadLine();
 
-                Console.WriteLine("\nWhat is the old project name?");
-                oldName = Console.ReadLine();
+            //     Console.WriteLine("\nWhat is the old project name?");
+            //     oldName = Console.ReadLine();
 
-                Console.WriteLine("\nWhat is the new project name?");
-                newName = Console.ReadLine();
+            //     Console.WriteLine("\nWhat is the new project name?");
+            //     newName = Console.ReadLine();
 
-                Console.WriteLine($"\nProject path: {projectPath}\n Old name: {oldName}\n New name: {newName}\n");
-                Console.WriteLine("Accept these values? Yes or No");
-                var yesNo = Console.ReadLine() ?? "no";
+            //     Console.WriteLine($"\nProject path: {projectPath}\n Old name: {oldName}\n New name: {newName}\n");
+            //     Console.WriteLine("Accept these values? Yes or No");
+            //     var yesNo = Console.ReadLine() ?? "no";
 
-                if (!(yesNo.ToLower() == "yes" || yesNo.ToLower() == "y")) return;
-            }
-            else
-            {
-                projectPath = args[0];
-                oldName = args[1];
-                newName = args[2];
-            }
+            //     if (!(yesNo.ToLower() == "yes" || yesNo.ToLower() == "y")) return;
+            // }
+            // else
+            // {
+            //     projectPath = args[0];
+            //     oldName = args[1];
+            //     newName = args[2];
+            // }
 
-            var ignoreFile = projectPath + @"\IgnoreExtensions.RenameUtility";
-            var ignoreExts = new List<string>();
+            // var ignoreFile = projectPath + @"\IgnoreExtensions.RenameUtility";
+            // var ignoreExts = new List<string>();
 
-            if (!string.IsNullOrEmpty(ignoreFile))
-            {
-                try
-                {
-                    var ignoreFileText = File.ReadAllText(ignoreFile).Split(",");
-                    ignoreExts.AddRange(ignoreFileText);
-                }
-                catch
-                {
-                    Console.WriteLine($"ERROR - Failed to read IgnoreExtensions.RenameUtility file.");
-                }
-            }
+            // if (!string.IsNullOrEmpty(ignoreFile))
+            // {
+            //     try
+            //     {
+            //         var ignoreFileText = File.ReadAllText(ignoreFile).Split(",");
+            //         ignoreExts.AddRange(ignoreFileText);
+            //     }
+            //     catch
+            //     {
+            //         Console.WriteLine($"ERROR - Failed to read IgnoreExtensions.RenameUtility file.");
+            //     }
+            // }
 
-            Renamer(projectPath, oldName, newName, ignoreExts);
+            // Renamer(projectPath, oldName, newName, ignoreExts);
 
-            // showText("exple.cs");
+            showText("exple.cs");
+
+            /* begin added */
+
+				string projectPath = "";
+
+				//nouvelle ligne
+
+				string oldName = "";
+
+				string newName = "";
+
+				List<string> ignoreExts = new List<string>();
+
+				Renamer(projectPath, oldName, newName, ignoreExts);
+
+            /* end added */
         }
 
         private static void Renamer(string source, string search, string replace, ICollection<string> ignoreExts)
@@ -164,38 +180,14 @@ namespace RenameUtility
             }
         }
 
-        // private static void showText(string filepath){
-        //     var text = File.ReadAllLines(filepath);
-        //     int i = Array.IndexOf(text, "            /* end added */");
-        //     var pre = text.Take(i - 1);
-        //     var post = text.Skip(i-1);
+        private static void showText(string filepath){
+            var text = File.ReadAllLines(filepath);
+            Console.WriteLine($"\n {text}");
+            Console.WriteLine("\n\n *************************************\n\n");
 
-        //     Console.WriteLine("Injection des dépendances");
-        //     string[] add = new string[]{
-        //         "\n\t\t\t\t//nouvelle ligne",
-        //         "\n\t\t\t\tstring projectPath = \"\";",
-        //         "\n\t\t\t\tstring oldName = \"\";",
-        //         "\n\t\t\t\tstring newName = \"\";",
-        //         "\n\t\t\t\tList<string> ignoreExts = new List<string>();",
-        //         "\n\t\t\t\tRenamer(projectPath, oldName, newName, ignoreExts);",
-        //     };
-            
-        //     pre = pre.Concat(add);
-        //     pre = pre.Concat(post);
+            var text1 = File.ReadAllText(filepath);
+            Console.WriteLine($"\n {text1}");
 
-        //     try
-        //     {
-        //         File.WriteAllText(filepath, string.Join('\n', pre));
-        //     }
-        //     catch (System.Exception ex)
-        //     {
-                
-        //          Console.WriteLine($"ERROR - Failed to replace text in file: {ex.Message}.");
-        //     }
-            
-            
-        //     Console.WriteLine($"\n succes");
-            
-        // }
+        }
     }
 }

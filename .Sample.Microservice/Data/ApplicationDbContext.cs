@@ -15,7 +15,11 @@ namespace Sample.Microservice.Data
         {
         }
 
-        DbSet<SampleDtoModel> IApplicationDbContext.Samples { get; set; }
+        /** Begin DBContext Adding */
+
+            DbSet<SampleDtoModel> IApplicationDbContext.Samples { get; set; }
+        
+        /** End DBContext Adding */
 
         public async Task<int> SaveChanges()
         {
